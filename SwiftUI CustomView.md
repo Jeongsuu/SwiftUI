@@ -203,7 +203,80 @@ Text("Text 2")
     .modifier(StandardTitle())
 ```
 
-이후에는 `modifer()` 메서드를 통해 커스텀 수정자를 전달하여 사용하면 된다.
+이후에는 `modifier()` 메서드를 통해 커스텀 수정자를 전달하여 사용하면 된다.
+
+<br>
+
+### 기본적인 이벤트 처리
+---
+
+앞서 우리는 SwiftUI가 데이터 주도적이라고 표현했다.
+
+사용자가 애플리케이션과 마주하게 되는 뷰는 사용자가 조작할 때 발생하는 이벤트 처리는 여전히 필요하다.
+
+예를 들어, `Button` 뷰는 버튼에 담길 내용과 함께 클릭이 감지되면 호출할 메서드도 선어해야한다.
+
+다음 구현 예시는 Text 뷰를 감싸는 Button 뷰로, 클릭시 buttonPressed() 메서드가 호출된다.
+
+```swift
+
+struct ContentView: View {
+    var body: some View {
+        Button(action: buttonPressed() {
+            Text("Click me")
+        }
+    }
+
+    func buttonPressed() {
+        // 동작 코드
+    }
+}
+```
+위와 같이 액션함수를 따로 지정하는 대신 클로저를 통해 액션 내용을 전달할 수 있다.
+
+```swift
+Struct ContentView: View {
+    var body: some View {
+        Button(action: {
+            // 동작 코드
+        }) {
+            Text("Click me")
+        }
+    }
+}
+```
+
+<br>
+
+### onAppear() 그리고 onDisappear()
+---
+
+레이아웃 내에 뷰가 나타나거나 사라질 때 초기화 작업과 초기화 해제 작업을 수행하기 위하여 지정된 뷰 내에 액션 메서드들을 선언하기도 한다.
+
+이름을 보면 알 수 있듯 위 내용은 onAppear() 메소드와 onDisappear() 메소드가 진행한다.
+
+```swift
+
+Text("Hello World")
+    .onAppear(perform: {
+        // 뷰가 나타날 때 수행할 코드
+    }
+    .onDisappear(perform: {
+        // 뷰가 사라질 대 수행할 코드
+    })
+)
+```
+
+<br>
+
+SwiftUI는 SwiftUI View 파일에 선언되며 View 프로토콜을 준수한다.
+
+View 프로토콜을 따르기 위해서 구조체는 View 자신인 body 프로퍼티를 포함해야한다.
+
+또한, SwiftUI는 UI 설계를 위해 내장 컴포넌트 라이브러리를 제공하며 뷰의 모양과 동작을 제어하기 위해서는 수정자(Modifier)를 이용한다.
+
+수정자를 뷰에 적용하면 매번 새로운 뷰가 반환된다. 따라서 수정자를 적용하는 순서가 뷰의 모양에 중요한 영향을 주게 된다.
+
 
 <br>
 
@@ -220,4 +293,6 @@ Text("Text 2")
 - 수정자는 뷰의 모양 또는 동작을 변경하는데 사용된다.
 
 - 수정자 적용시에는 같은 수정자들을 어떠한 순서로 사용하냐에 따라 반환되는 레이아웃이 다르기 떄문에 적용 순서에 유의해야 한다.
+
+- 뷰의 초기화 작업과 해제 작업은 onAppear(), onDisappear() 메소드가 처리한다.
 
