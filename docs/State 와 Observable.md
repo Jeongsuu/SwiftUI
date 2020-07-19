@@ -22,8 +22,7 @@ SwiftUI 내에서 UI 레이아웃을 구성하는 뷰는 코드 내에서 직접
 
 상태 프로퍼티는 `@State` 라는 프로퍼티 래퍼를 활용하여 아래와 같이 선언한다.
 
-```
-
+```swift
 struct ContentView: View {
 
     @State private var wifiEnabled = true
@@ -49,8 +48,7 @@ struct ContentView: View {
 
 아래 예제는 `TextView` 뷰와 `userName` 라는 상태 프로퍼티와의 바인딩 예제이다.
 
-```
-
+```swift
 struct ContentView: View {
 
     @State private var wifiEnabled = true
@@ -71,7 +69,7 @@ TextField 와 userName 이라는 상태 프로퍼티가 바인딩되어 TextView
 
 아래 예시를 살펴보도록 하자.
 
-```
+```swift
 struct ContentView: View {
 
     @State private var wifiEnabled = true
@@ -109,6 +107,8 @@ Toggle 뷰의 경우 `isOn` 파라미터의 타입은 `Binding<Bool>` 로 바인
 
 실행해보면 알 수 있듯, 상태 프로퍼티값에 따라 뷰가 렌더링되는 것을 알 수 있다.
 
+<br>
+
 ### 상태 바인딩
 
 ---
@@ -117,8 +117,7 @@ Toggle 뷰의 경우 `isOn` 파라미터의 타입은 `Binding<Bool>` 로 바인
 
 그러나, 어떤 뷰가 하나 이상의 하위 뷰를 가지고 있고 동일한 상태 프로퍼티에 대한 접근이 필요할 경우가 존재하는데 하위 뷰는 해당 상태 프로퍼티에 대한 참조가 불가능하다.
 
-```
-
+```swift
 .
 .
 VStack {
@@ -147,7 +146,7 @@ WifiImageView 내부에서 `wifiEnabled` 라는 상태 프로퍼티에 대한 �
 
 이러한 문제는 `@Binding` 프로퍼티 래퍼를 이용하여 상태 바인딩을 통해 해결이 가능하다.
 
-```
+```swift
 struct WifiImageView: View {
 
     @Binding var wifiEnabled: Bool  // 상태 바인딩
@@ -163,6 +162,8 @@ struct WifiImageView: View {
 ```
 WifiImageView(wifiEnabled: $wifiEnabled)
 ```
+
+<br>
 
 ### Observable 객체
 
@@ -190,12 +191,16 @@ Observer 객체가 Publisher를 구독하고, 게시된 프로퍼티가 변경�
 
 Observable 객체의 게시된 프로퍼티를 구현하는 가장 쉬운 방법은 프로퍼티 선언시 `@Published` 프로퍼티 래퍼를 활용하는 것이다.
 
-```
+**즉, 관찰가능한 객체(Observable Object)가 프로퍼티를 게시(@Pubhlished) 하면 관찰자(Observer)가 이를 구독하는 개념이다.**
+
+```swift
 import Foundation
 import Combine
 
+// 관찰가능한 객체(ObservableObject) 클래스 생성
 class DemoData: ObservableObject {
 
+    // 프로퍼티 게시
     @Published var userCount = 0
     @Published var currentUser = ""
 
@@ -210,18 +215,20 @@ class DemoData: ObservableObject {
 }
 ```
 
-이후 구독자는 observable 객체를 구독하기 위해 `@ObservedObject` 프로퍼티 래퍼를 사용한다.
+이후 옵저버(Subscriber)는 observable 객체를 구독하기 위해 `@ObservedObject` 프로퍼티 래퍼를 사용한다.
 
 위 예제 클래스의 인스턴스를 구독하는 예제는 아래와 같다.
 
-```
+```swift
 import SwiftUI
 
 struct ContentView: View {
-
-    @observedObject var demoData: DemoData      
+    // ObservableObject demoData를 구독한다.
+    @observedObject var demoData: DemoData
+    
 
     var body: some View {
+        // demoData는 ObservableObject이다.
         Text("\(demoData.currentUser), you are user number \(demoData.userCount)")
     }
 }
@@ -233,8 +240,23 @@ struct ContentView_Previews: PreviewProvider {
 }
 ```
 
-  
-  
+관찰가능한 객체 `ObservableObject` 인스턴스를 생성하고, 해당 클래스에서 게시(@Published)한 프로퍼티를 참조한다.
+
+게시된(@Published) 데이터가 변경되면 SwiftUI는 새로운 상태를 반영하도록 자동으로 뷰를 렌더링한다.
+
+<br>
+
+## Environment 객체
+---
+
+`@Published` 는 특정 상태가 앱 내 몇몇 SwiftUI 뷰에 의해 사용되어야 할 경우 적합하다.
+
+하지만 어떠한 뷰에서 다른 뷰로 이동(navigation) 하는데 이동될 뷰에서도 동일한 구독 객체에 접근해야 한다면, 이동할 때 대상 뷰로 구독 객체에 대한 참조체를 전달해야 할 것이다.
+
+
+
+
+## Summary
 
 -   SwiftUI는 상태 프로퍼티, Observable 객체, 그리고 Environment 객체를 제공하며 이들 모두는 UI의 모양과 동작을 결정하는 상태를 제공한다.
     
@@ -251,3 +273,9 @@ struct ContentView_Previews: PreviewProvider {
 -   기본적으로 자식 뷰에서는 private 키워드로 선언된 부모 뷰의 상태 프로퍼티를 접근할 수 없다. 접근이 필요한 경우애는 **상태 바인딩** 을 이용하여 문제를 해결한다.
     
 -   Observable 객체는 다른 뷰에서의 접근 또한 가능하며 영구적인 데이터를 표현하기 위해 사용한다.
+
+-   관찰가능한 객체(Observable Object)가 프로퍼티를 게시(@Published) 하면 관찰자(Observer)가 이를 구독하는 개념이다.
+
+- 여러 뷰에서 공유하고자 하는 데이터가 있을 경우, Observable한 Object 타입 내에 `@Published` 프로퍼티 래퍼를 활용하여 데이터를 선언한다. 이후 해당 데이터를 필요로 하는 곳에서 Observable Object 타입의 인스턴스를 생헝한다. 이때는, `@ObservedObject` 라는 프로퍼티 래퍼를 이용하여 **구독** 하겠다는 것을 표시한다. 이후에는 `Published` 된 데이터들을 `Observedobject.Published_Data` 방식으로 `.` 연산자로 접근하여 사용이 가능하다.
+
+- 만일 게시된(`@Published`) 데이터가 변경되면 SwiftUI는 이를 자동으로 다시 렌더링한다.
